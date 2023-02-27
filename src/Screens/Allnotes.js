@@ -27,91 +27,80 @@ const Allnotes = ({navigation}) => {
       });
       setAllNotesData(x);
     } catch (error) {
-      Alert.alert('Alert!', 'Something went wrong.');
+      console.log('Data not found');
     }
   };
 
   const deleteNote = async idx => {
-    let temp = [];
-    allNotesData.map((item, index) => {
-      if (index !== idx) {
-        temp.push(item);
-      }
-    });
-    await EncryptedStorage.setItem(
-      'notes',
-      JSON.stringify({
-        data: temp,
-      }),
-    );
-    setAllNotesData(temp);
+    Alert.alert('Alert!', 'Are you sure to delete?', [
+      {
+        text: 'No',
+      },
+      {
+        text: 'Yes',
+        onPress: async () => {
+          let temp = [];
+          allNotesData.map((item, index) => {
+            if (index !== idx) {
+              temp.push(item);
+            }
+          });
+          await EncryptedStorage.setItem(
+            'notes',
+            JSON.stringify({
+              data: temp,
+            }),
+          );
+          setAllNotesData(temp);
+        },
+      },
+    ]);
   };
 
   const renderFlatItems = ({item, index}) => {
     return (
       <TouchableOpacity
         onPress={() => navigation.navigate('Addnotes', {item, edit: true})}
-        style={{
-          // justifyContent: 'center',
-          // alignItems: 'flex-start',
-          // width: '100%',
-
-          height: 70,
-          // borderWidth: 0.5,
-          borderRadius: 10,
-          marginVertical: 5,
-          backgroundColor: 'white',
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-
-          elevation: 5,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingRight: 10,
-        }}>
+        style={styles.flatListContainer}>
         <View>
-          <Text
-            style={{
-              color: 'black',
-              margin: 5,
-              fontSize: 17,
-              fontWeight: '700',
-            }}>
+          <Text style={styles.flatListViewTitleTxt} numberOfLines={1}>
             {item.title}
           </Text>
-          <Text style={{color: 'black', margin: 5}} numberOfLines={1}>
+          <Text style={styles.flatListViewDecTxt} numberOfLines={1}>
             {item.desc}
           </Text>
         </View>
         <TouchableOpacity
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 0.5,
-            width: 30,
-            height: 30,
-            borderRadius: 15,
-            backgroundColor: '#e10000',
-          }}
+          style={styles.flatListDeleteBtn}
           onPress={() => deleteNote(index)}>
-          <Text style={{color: 'white', fontSize: 18, fontWeight: '700'}}>
-            X
-          </Text>
+          <Text style={styles.flatListDeleteBtnTxt}>X</Text>
         </TouchableOpacity>
       </TouchableOpacity>
+    );
+  };
+
+  const renderFlatLastItem = () => {
+    return <View style={{height: 10}} />;
+  };
+  const renderFlatEmptyItem = () => {
+    return (
+      <Text style={{alignSelf: 'center', color: 'black'}}>
+        Add notes by clicking + button
+      </Text>
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View>
-        <FlatList data={allNotesData} renderItem={renderFlatItems} />
+        <FlatList
+          style={{marginBottom: 70}}
+          showsVerticalScrollIndicator={false}
+          data={allNotesData}
+          renderItem={renderFlatItems}
+          ListEmptyComponent={renderFlatEmptyItem}
+          ListFooterComponent={renderFlatLastItem}
+        />
       </View>
       <TouchableOpacity
         style={styles.addNoteBtn}
@@ -128,7 +117,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     margin: 10,
-    // alignItems: 'center',
   },
   addNoteBtn: {
     width: 50,
@@ -146,12 +134,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    bottom: 70,
-    right: 25,
+    bottom: 15,
+    right: 15,
   },
   addNotesBtnTxt: {
     fontSize: 25,
     fontWeight: '700',
     color: 'white',
   },
+  flatListContainer: {
+    height: 70,
+    borderRadius: 10,
+    marginVertical: 5,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: 10,
+  },
+  flatListViewTitleTxt: {
+    color: 'black',
+    margin: 5,
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  flatListViewDecTxt: {color: 'black', margin: 5},
+  flatListDeleteBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0.5,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#e10000',
+  },
+  flatListDeleteBtnTxt: {color: 'white', fontSize: 18, fontWeight: '700'},
 });

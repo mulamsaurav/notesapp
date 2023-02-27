@@ -22,23 +22,26 @@ const Addnotes = ({navigation}) => {
   };
 
   const saveDetailes = async () => {
-    if (values.title !== '' && values.desc !== '') {
+    if (values !== {} || values.title !== '') {
       try {
         let x = [];
-        let id;
+        let id = 1;
         let y = await EncryptedStorage.getItem('notes');
         let data = JSON.parse(y);
-        if (data !== null) {
+
+        if (data !== undefined) {
           data.data.map((itm, index) => {
             x.push(itm);
           });
           let last = data.data.slice(-1)[0];
-          id = last.id;
-          id++;
+          if (last !== undefined) {
+            id = last.id;
+            id++;
+          }
         }
         if (route.params?.edit) {
           x.map(item => {
-            if (item.id === route.params.item.id) {
+            if (item?.id === route.params?.item?.id) {
               item.title = values.title;
               item.desc = values.desc;
             }
@@ -46,6 +49,7 @@ const Addnotes = ({navigation}) => {
         } else {
           x.push({title: values.title, desc: values.desc, id: id});
         }
+
         await EncryptedStorage.setItem(
           'notes',
           JSON.stringify({
@@ -54,6 +58,7 @@ const Addnotes = ({navigation}) => {
         );
         navigation.navigate('Allnotes');
       } catch (error) {
+        console.log(error);
         Alert.alert('Alert!', 'Something went wrong.');
       }
     } else {
@@ -63,7 +68,6 @@ const Addnotes = ({navigation}) => {
 
   useEffect(() => {
     let data = route.params;
-    console.log(data);
     if (data) {
       setValues({title: data.item?.title, desc: data.item?.desc});
     }
