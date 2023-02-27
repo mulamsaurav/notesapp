@@ -27,9 +27,9 @@ const Addnotes = ({navigation}) => {
         let x = [];
         let id = 1;
         let y = await EncryptedStorage.getItem('notes');
-        let data = JSON.parse(y);
-
-        if (data !== undefined) {
+        let data;
+        if (y) data = JSON.parse(y);
+        if (data) {
           data.data.map((itm, index) => {
             x.push(itm);
           });
@@ -58,7 +58,7 @@ const Addnotes = ({navigation}) => {
         );
         navigation.navigate('Allnotes');
       } catch (error) {
-        console.log(error);
+        console.log('asdasd', error);
         Alert.alert('Alert!', 'Something went wrong.');
       }
     } else {
