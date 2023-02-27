@@ -25,7 +25,6 @@ const Allnotes = ({navigation}) => {
       data.data.map(itm => {
         x.push(itm);
       });
-      console.log(x);
       setAllNotesData(x);
     } catch (error) {
       Alert.alert('Alert!', 'Something went wrong.');
@@ -49,9 +48,9 @@ const Allnotes = ({navigation}) => {
   };
 
   const renderFlatItems = ({item, index}) => {
-    console.log('asdasd', item);
     return (
-      <View
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Addnotes', {item, edit: true})}
         style={{
           // justifyContent: 'center',
           // alignItems: 'flex-start',
@@ -105,7 +104,7 @@ const Allnotes = ({navigation}) => {
             X
           </Text>
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   };
 

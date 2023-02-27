@@ -10,42 +10,67 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import {useRoute} from '@react-navigation/native';
 
 const Addnotes = ({navigation}) => {
+  const route = useRoute();
+
   const [values, setValues] = useState({});
-  // const [notesData, setNotesData] = useState([]);
 
   const onChange = (value, key) => {
     setValues(val => ({...val, [key]: value}));
   };
 
   const saveDetailes = async () => {
-    try {
-      let x = [];
-      let y = await EncryptedStorage.getItem('notes');
-      let data = JSON.parse(y);
-      if (data !== null) {
-        data.data.map(itm => {
-          x.push(itm);
-        });
+    if (values.title !== '' && values.desc !== '') {
+      try {
+        let x = [];
+        let id;
+        let y = await EncryptedStorage.getItem('notes');
+        let data = JSON.parse(y);
+        if (data !== null) {
+          data.data.map((itm, index) => {
+            x.push(itm);
+          });
+          let last = data.data.slice(-1)[0];
+          id = last.id;
+          id++;
+        }
+        if (route.params?.edit) {
+          x.map(item => {
+            if (item.id === route.params.item.id) {
+              item.title = values.title;
+              item.desc = values.desc;
+            }
+          });
+        } else {
+          x.push({title: values.title, desc: values.desc, id: id});
+        }
+        await EncryptedStorage.setItem(
+          'notes',
+          JSON.stringify({
+            data: x,
+          }),
+        );
+        navigation.navigate('Allnotes');
+      } catch (error) {
+        Alert.alert('Alert!', 'Something went wrong.');
       }
-      x.push({title: values.title, desc: values.desc});
-      await EncryptedStorage.setItem(
-        'notes',
-        JSON.stringify({
-          data: x,
-        }),
-      );
-      navigation.navigate('Allnotes');
-    } catch (error) {
-      console.log(error);
-      Alert.alert('Alert!', 'Something went wrong.');
+    } else {
+      Alert.alert('Alert!', 'Title and Description are mandatory.');
     }
   };
 
+  useEffect(() => {
+    let data = route.params;
+    console.log(data);
+    if (data) {
+      setValues({title: data.item?.title, desc: data.item?.desc});
+    }
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* <View> */}
       <TextInput
         style={styles.inputContainer}
         placeholder="Enter Title"
@@ -65,8 +90,7 @@ const Addnotes = ({navigation}) => {
           onChangeText={v => onChange(v, 'desc')}
         />
       </View>
-      {/* </View> */}
-      <TouchableOpacity onPress={() => saveDetailes()}>
+      <TouchableOpacity onPress={() => saveDetailes()} style={styles.saveBtn}>
         <Text style={styles.saveBtnTxt}>Save</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -100,10 +124,27 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
   },
+  saveBtn: {
+    marginTop: 10,
+    backgroundColor: 'green',
+    width: width * 0.4,
+    height: height * 0.05,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.37,
+    shadowRadius: 7.49,
+    elevation: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   saveBtnTxt: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'black',
-    marginTop: height * 0.03,
+    color: 'white',
+    // marginTop: height * 0.03,
   },
 });
